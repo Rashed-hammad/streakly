@@ -1,0 +1,203 @@
+import { useState } from "react";
+import {
+  Trash,
+  CircleCheck,
+  SquarePen,
+  Ban,
+  Search,
+  ArrowDownWideNarrow,
+} from "lucide-react";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import HabitDetails from "./HabitDetails";
+
+const HabitsList = ({ habits, fetchHabits }) => {
+  const { token } = useAuth();
+  const [selectedHabit, setSelectedHabit] = useState(null);
+  const [showCompletedFirst, setShowCompletedFirst] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredHabits = habits.filter((habit) =>
+    `${habit.title} ${habit.description || ""}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase()),
+  );
+  const handleDelete = async (habitId) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/habits/${habitId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchHabits();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleComplete = async (habitId) => {
+    try {
+      await axios.patch(
+        `http://localhost:3000/api/habits/${habitId}/toggle`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      fetchHabits();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const isCompletedToday = (completions) => {
+    const today = new Date().toDateString();
+    return completions.some((date) => new Date(date).toDateString() === today);
+  };
+  const sortedHabits = [...filteredHabits].sort((a, b) => {
+    const aCompleted = isCompletedToday(a.completions);
+    const bCompleted = isCompletedToday(b.completions);
+
+    return showCompletedFirst
+      ? Number(bCompleted) - Number(aCompleted)
+      : Number(aCompleted) - Number(bCompleted);
+  });
+  return (
+    <div>
+      <div className="mx-auto mb-6 flex w-full max-w-4xl flex-col gap-4 md:flex-row md:items-center md:justify-between"></div>
+      <div className="flex justify-end gap-3 ">
+        <div className="relative flex-1 max-w-xs">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+          />
+
+          <input
+            type="text"
+            placeholder="Search habits..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-xl border border-muted/30 bg-surface py-2 pl-10 pr-4 text-text placeholder:text-muted shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+        <button
+          onClick={() => setShowCompletedFirst(!showCompletedFirst)}
+          className="flex items-center gap-2 rounded-xl border border-muted/30 bg-surface px-3 py-2 text-text shadow-sm transition hover:bg-background"
+        >
+          <ArrowDownWideNarrow size={18} />
+
+          <span className="text-sm">
+            {showCompletedFirst ? "Completed First" : "Pending First"}
+          </span>
+        </button>
+      </div>
+      <div className="mb-4 flex justify-end"></div>
+      {habits.length === 0 ? (
+        <div className="rounded-2xl bg-surface p-10 text-center shadow-sm">
+          <h3 className="text-xl font-semibold text-text">No habits yet</h3>
+
+          <p className="mt-2 text-muted">
+            Create your first habit and start building a streak.
+          </p>
+        </div>
+      ) : (
+        <ul className="mt-4 flex flex-wrap items-center justify-center gap-4">
+          {sortedHabits.map((habit) => (
+            <li
+              key={habit._id}
+              onClick={() => setSelectedHabit(habit)}
+              className={`w-full max-w-sm h-45
+                cursor-pointer rounded-2xl bg-surface border border-slate-200 p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg  ${
+                  isCompletedToday(habit.completions)
+                    ? "border-l-4 border-l-success"
+                    : "border-l-4 border-l-danger"
+                }`}
+            >
+              <div className="flex items-start justify-between ">
+                {/* Habit Info */}
+                <div className="flex-1 flex flex-col ">
+                  <h2 className="text-xl font-bold text-text">{habit.title}</h2>
+
+                  <p className="mt-1 text-muted h-10">
+                    {habit.description || "No description"}
+                  </p>
+
+                  <p className="mt-4 text-sm text-muted">
+                    Last completed:{" "}
+                    <span className="font-medium text-text">
+                      {habit.completions.at(-1)
+                        ? new Date(
+                            habit.completions.at(-1),
+                          ).toLocaleDateString()
+                        : "Never"}
+                    </span>
+                  </p>
+
+                  <p className="mt-1 font-medium text-text flex-8">
+                    🔥 {habit.streak} {habit.streak === 1 ? "day" : "days"}
+                  </p>
+                </div>
+
+                {/* Status + Actions */}
+                <div className="ml-4 flex flex-col items-end justify-between gap-20">
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      isCompletedToday(habit.completions)
+                        ? "bg-success/10 text-success"
+                        : "bg-danger/10 text-danger"
+                    }`}
+                  >
+                    {isCompletedToday(habit.completions)
+                      ? "Completed"
+                      : "Pending"}
+                  </span>
+
+                  <div className="flex gap-3">
+                    {isCompletedToday(habit.completions) ? (
+                      <Ban
+                        className="cursor-pointer text-danger transition-transform hover:scale-110"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleComplete(habit._id);
+                        }}
+                      />
+                    ) : (
+                      <CircleCheck
+                        className="cursor-pointer text-success transition-transform hover:scale-110"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleComplete(habit._id);
+                        }}
+                      />
+                    )}
+
+                    <SquarePen
+                      className="cursor-pointer text-primary transition-transform hover:scale-110"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedHabit(habit);
+                      }}
+                    />
+
+                    <Trash
+                      className="cursor-pointer text-danger transition-transform hover:scale-110"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(habit._id);
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {selectedHabit && (
+        <HabitDetails
+          habit={selectedHabit}
+          onClose={() => setSelectedHabit(null)}
+          isCompletedToday={isCompletedToday}
+        />
+      )}
+    </div>
+  );
+};
+
+export default HabitsList;
