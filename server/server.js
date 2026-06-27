@@ -7,7 +7,12 @@ import habitsRoutes from "./routes/habits.js";
 import authMiddleware from "./middleware/auth.js";
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://streakly-livid.vercel.app",
+    credentials: true,
+  }),
+);
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
