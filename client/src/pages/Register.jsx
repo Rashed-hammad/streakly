@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -20,7 +21,7 @@ const Register = () => {
     }
 
     try {
-      await axios.post("http://localhost:3000/api/auth/register", {
+      await axios.post(`${BASE_URL}/api/auth/register`, {
         username,
         email,
         password,

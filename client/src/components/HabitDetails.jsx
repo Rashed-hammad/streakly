@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Plus, Trash2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const HabitDetails = ({ habit, onClose, isCompletedToday, fetchHabits }) => {
   const [timeFrame, setTimeFrame] = useState("all");
@@ -21,10 +22,9 @@ const HabitDetails = ({ habit, onClose, isCompletedToday, fetchHabits }) => {
 
   const handleDeleteNote = async (habitId, noteId) => {
     try {
-      await axios.delete(
-        `http://localhost:3000/api/habits/${habitId}/notes/${noteId}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      await axios.delete(`${BASE_URL}/habits/${habitId}/notes/${noteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNotes((prev) => prev.filter((note) => note._id !== noteId));
       fetchHabits();
     } catch (error) {
@@ -36,7 +36,7 @@ const HabitDetails = ({ habit, onClose, isCompletedToday, fetchHabits }) => {
     if (!newNote.trim()) return;
     try {
       await axios.post(
-        `http://localhost:3000/api/habits/${habit._id}/notes`,
+        `${BASE_URL}/api/habits/${habit._id}/notes`,
         { note: newNote },
         { headers: { Authorization: `Bearer ${token}` } },
       );

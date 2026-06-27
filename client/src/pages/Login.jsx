@@ -3,6 +3,7 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,10 +16,10 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/login",
-        { email, password },
-      );
+      const response = await axios.post(`${BASE_URL}/api/auth/login`, {
+        email,
+        password,
+      });
 
       login(response.data.user, response.data.token);
       navigate("/home");

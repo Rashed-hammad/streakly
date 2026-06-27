@@ -7,6 +7,8 @@ import {
   ArrowDownWideNarrow,
   Pencil,
 } from "lucide-react";
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import HabitDetails from "./HabitDetails";
@@ -31,7 +33,7 @@ const HabitsList = ({ habits, fetchHabits }) => {
 
   const handleDelete = async (habitId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/habits/${habitId}`, {
+      await axios.delete(`${BASE_URL}/api/habits/${habitId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchHabits();
@@ -56,7 +58,7 @@ const HabitsList = ({ habits, fetchHabits }) => {
   const handleComplete = async (habitId) => {
     try {
       await axios.patch(
-        `http://localhost:3000/api/habits/${habitId}/toggle`,
+        `${BASE_URL}/api/habits/${habitId}/toggle`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -70,7 +72,7 @@ const HabitsList = ({ habits, fetchHabits }) => {
     if (!editTitle.trim()) return;
     try {
       await axios.put(
-        `http://localhost:3000/api/habits/${editHabitId}`,
+        `${BASE_URL}/api/habits/${editHabitId}`,
         { title: editTitle, description: editDescription },
         { headers: { Authorization: `Bearer ${token}` } },
       );

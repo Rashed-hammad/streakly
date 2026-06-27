@@ -6,6 +6,8 @@ import HabitsList from "../components/HabitsList";
 import AddNewHabit from "../components/AddNewHabit";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [habits, setHabits] = useState([]);
@@ -29,7 +31,7 @@ const Home = () => {
   }, 0);
   const handleAddHabit = async () => {
     try {
-      await axios.post("http://localhost:3000/api/habits", newHabit, {
+      await axios.post(`${BASE_URL}/api/habits`, newHabit, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNewHabit({ title: "", description: "" });
@@ -41,12 +43,11 @@ const Home = () => {
   };
   const fetchHabits = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/habits", {
+      const response = await axios.get(`${BASE_URL}/api/habits`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data.habits);
       setHabits(response.data.habits);
     } catch (error) {
       console.error(error);

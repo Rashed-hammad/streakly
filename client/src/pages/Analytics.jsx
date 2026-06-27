@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import axios from "axios";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const Analytics = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -86,7 +87,7 @@ const Analytics = () => {
 
   const fetchHabits = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/habits", {
+      const response = await axios.get(`${BASE_URL}/api/habits`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setHabits(response.data.habits);
