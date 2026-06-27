@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import HabitsList from "../components/HabitsList";
 import AddNewHabit from "../components/AddNewHabit";
 import Navbar from "../components/Navbar";
@@ -9,6 +9,7 @@ import Sidebar from "../components/Sidebar";
 const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [habits, setHabits] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [newHabit, setNewHabit] = useState({ title: "", description: "" });
   const { token } = useAuth();
@@ -49,6 +50,8 @@ const Home = () => {
       setHabits(response.data.habits);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,8 +123,13 @@ const Home = () => {
               {habits.length} Habits
             </span>
           </div>
-
-          <HabitsList habits={habits} fetchHabits={fetchHabits} />
+          {loading ? (
+            <div className="flex justify-center py-10">
+              <Loader2 className="animate-spin text-primary" size={32} />
+            </div>
+          ) : (
+            <HabitsList habits={habits} fetchHabits={fetchHabits} />
+          )}
         </div>
       </main>
 

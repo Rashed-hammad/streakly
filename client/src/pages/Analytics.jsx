@@ -98,12 +98,52 @@ const Analytics = () => {
   useEffect(() => {
     fetchHabits();
   }, []);
+  const highestStreak =
+    habits.length > 0
+      ? Math.max(...habits.map((habit) => habit.streak || 0))
+      : 0;
 
+  const completionsToday = habits.reduce((count, habit) => {
+    const today = new Date().toDateString();
+    if (
+      habit.completions.some((date) => new Date(date).toDateString() === today)
+    ) {
+      return count + 1;
+    }
+    return count;
+  }, 0);
   return (
     <div className="min-h-screen bg-background">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <Navbar setSidebarOpen={setSidebarOpen} />
+      <div className="mb-8 grid gap-4 md:grid-cols-3 mt-15 p-6">
+        <div className="rounded-2xl bg-surface p-6 shadow-sm">
+          <p className="text-sm text-muted">Total Habits</p>
+          <h2 className="mt-2 text-3xl font-bold text-text">{habits.length}</h2>
+        </div>
 
+        <div className="rounded-2xl bg-surface p-6 shadow-sm">
+          <p className="text-sm text-muted">Highest Streak</p>
+          <h2 className="mt-2 text-3xl font-bold text-success">
+            🔥 {highestStreak}
+          </h2>
+        </div>
+
+        <div className="rounded-2xl bg-surface p-6 shadow-sm">
+          <p className="text-sm text-muted">Completion Rate</p>
+
+          <h2 className="mt-2 text-3xl font-bold text-secondary">
+            {habits.length > 0
+              ? Math.round((completionsToday / habits.length) * 100)
+              : 0}
+            %
+          </h2>
+
+          <p className="mt-1 text-sm text-muted">
+            {completionsToday} / {habits.length} completed today
+          </p>
+        </div>
+      </div>
       <div className="p-6">
         <div className="bg-surface rounded-2xl shadow-sm border border-slate-200 p-6">
           <div className="mb-6">

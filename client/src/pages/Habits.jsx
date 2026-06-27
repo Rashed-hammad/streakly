@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import HabitsList from "../components/HabitsList";
 import AddNewHabit from "../components/AddNewHabit";
 import Navbar from "../components/Navbar";
@@ -13,6 +13,7 @@ const Habits = () => {
   const [showModal, setShowModal] = useState(false);
   const [newHabit, setNewHabit] = useState({ title: "", description: "" });
   const { token } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   const handleAddHabit = async () => {
     try {
@@ -33,10 +34,11 @@ const Habits = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data.habits);
       setHabits(response.data.habits);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,8 +66,13 @@ const Habits = () => {
             </button>
           </div>
         </div>
-
-        <HabitsList habits={habits} fetchHabits={fetchHabits} />
+        {loading ? (
+          <div className="flex justify-center py-50">
+            <Loader2 className="animate-spin text-primary" size={32} />
+          </div>
+        ) : (
+          <HabitsList habits={habits} fetchHabits={fetchHabits} />
+        )}
       </div>
 
       <AddNewHabit

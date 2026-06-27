@@ -10,6 +10,19 @@ const habitSchema = new mongoose.Schema(
       required: true,
     },
     completions: [{ type: String }],
+    notes: [
+      {
+        text: {
+          type: String,
+        },
+
+        createdAt: {
+          type: Date,
+
+          default: Date.now,
+        },
+      },
+    ],
     streak: { type: Number, default: 0 },
   },
   { timestamps: true },
